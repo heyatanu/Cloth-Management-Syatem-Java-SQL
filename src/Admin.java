@@ -243,5 +243,56 @@ public class Admin {
     }
     return false;
   }
+  
+  public static int DiscountCheck(String discode) {
+	    Connection conn = null;
+	    Statement stmt = null;
+	    discode=discode.toUpperCase();
+	    discode=discode.trim();
+	    try {
+
+	      Class.forName("com.mysql.jdbc.Driver");
+	      conn = DriverManager.getConnection(DB_URL, USER, PASS);
+	      //STEP 4: Execute a query
+	      stmt = conn.createStatement();
+	      String sql = "select * from productdiscount where discountcode='" + discode + "'";
+	      ResultSet rs = stmt.executeQuery(sql);
+	      int c = 0;
+	      while (rs.next()) {
+	        c = c + 1;
+	      }
+	      if (c == 0) {
+//	    	  System.out.println("\n\t DISCOUNT CODE NOT FOUND");
+	        return -1;
+	      } else {
+	        sql = "select * from productdiscount where discountcode='" + discode + "'";
+	        rs = stmt.executeQuery(sql);
+	        while (rs.next()) {
+	          int dis = rs.getInt("discountnum");
+	          return dis;
+	        }
+	      }
+
+	    } catch (SQLException se) {
+
+	      System.out.println("\n\tSQL ERROR");
+	    } catch (Exception e) {
+	      //Handle errors for Class.forName
+	      System.out.println("\n\tERROR OCCERS");
+	    } finally {
+	      //finally block used to close resources
+	      try {
+	        if (stmt != null)
+	          conn.close();
+	      } catch (SQLException se) {} // do nothing
+	      try {
+	        if (conn != null)
+	          conn.close();
+	      } catch (SQLException se) {
+	        System.out.println("\n\tSQL ERROR");
+	      }
+	    }
+	    return -1;
+	  }
 
 }

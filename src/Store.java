@@ -143,7 +143,7 @@ class Product {
   static final String DB_URL = "jdbc:mysql://localhost/storemanagementsystem";
   static final String USER = "root"; //USERNAME
   static final String PASS = ""; //PASSWORD
-
+  Scanner in = new Scanner(System.in);
   Boolean CheckAvalability(int passid, int noOfProduct) { // CHEAK THE VALID PROCUST ID NO AND SEAT CAPACITY
     int instock = 0;
     Connection conn = null;
@@ -343,6 +343,30 @@ class Product {
           stmt = conn.createStatement();
           String updatesql = "UPDATE plist SET pinstock=" + newstockafterco + " WHERE pid=" + myProductList[i];
           stmt.executeUpdate(updatesql);
+          System.out.println("\n\tYour Final price is " + finalprice);
+          //DISCOUNT
+          while(true) {
+        	  try{System.out.println("Do you have any Discount code(1/0) :- ");
+        	  int disch=in.nextInt();
+        	  if(disch==1) {
+        		  System.out.print("Enter code here :- ");
+        		  String discode=in.next();
+        		if (Admin.DiscountCheck(discode)==-1) {
+        			System.out.println("Discount code not valid");
+        			break;
+        		}
+        		else {
+        			int d=Admin.DiscountCheck(discode);
+        			System.out.println("CONGRATULATION '"+discode+"' DISCOUNT CODE IS VALID YOU GOT ADDITIONAL "+d+"% OFF.");
+        			finalprice = finalprice - ((finalprice * d) / 100);
+        			break;
+        		}
+        	  }
+        	  else {
+        		  break;
+        	  }
+        	  }catch(Exception e) {System.out.println("INVALID INPUT");break;}
+          }
         }
         rs.close();
         stmt.close();
@@ -366,7 +390,6 @@ class Product {
     }
     System.out.println("\n\tYour Final price is " + finalprice);
     System.out.println("\n\t THANK YOU ");
-    System.out.println("\n\tData fetch successfull...");
   }
 
 }
