@@ -19,7 +19,7 @@ class Shop {
     Customer Customer1 = new Customer();
     Product Product1 = new Product();
     int iniciateadmin = 5656, tablecreate = 5555;
-    System.out.println("\n\tWELCOME TO ABC STORE THEATER");
+    System.out.println("\n\tWELCOME TO ABC STORE");
     //DISPLAY MOVIE LIST
     while (true) {
       Product1.ProductDisplay(0);
@@ -82,13 +82,28 @@ class Shop {
             if (Admin.AdminCheck(adminusername, adminpassword)) {
               System.out.println("\n\t WELCOME TO ADMIN PANAL (Double check before do anything this panal is sensitive)");
               while (true) {
-                System.out.print("\n\tADMIN\n\t1.Add a new product \n\t2.Remove product\n\t3.Display product list\n\t4.Update product items\n\t0.Exit");
+                System.out.print("\n\tADMIN\n\t1.Add a new product \n\t2.Remove product\n\t3.Display product list\n\t4.Update product items\n\t5.Search product with id\n\t0.Exit");
                 try {
                   System.out.print("\n Enter your interest -");
                   int AoptionCh = in .nextInt();
                   if (AoptionCh == 1) {
                     int randid = (int)(1000 * Math.random());
-                    Admin.AddProduct(randid, "Shirt", "XXL", "Green", 800, 5, 3);
+                    try {
+                    System.out.print("\n Enter the type  -");
+                    String type=in.next();
+                    System.out.print("\n Enter the size  -");
+                    String size=in.next();
+                    System.out.print("\n Enter the color  -");
+                    String color=in.next();
+                    System.out.print("\n Enter the price  -");
+                    int price=in.nextInt();
+                    System.out.print("\n Enter the discount  -");
+                    int dis=in.nextInt();
+                    System.out.print("\n Enter the stock  -");
+                    int sto=in.nextInt();
+                    
+                    Admin.AddProduct(randid, type,size,color,price,dis,sto);
+                    }catch(Exception e) {System.out.println("\n\tINVALID INPUT...");break;}
                   } else if (AoptionCh == 2) {
                     try {
                       System.out.print("\nEnter the id of product you want to delete - ");
@@ -109,7 +124,17 @@ class Shop {
                       System.out.println("\n\tINVALID...");
                       break;
                     }
-                  } else if (AoptionCh == 0) {
+                  } else if (AoptionCh == 5) {
+                      try {
+                          System.out.print("\nEnter the id of product you want to search - ");
+                          int checksts = in .nextInt();
+                          Product1.ProductSearch(checksts);
+                        } catch (Exception e) {
+                          System.out.println("\n\tINVALID...");
+                          break;
+                        }
+                      }
+                  else if (AoptionCh == 0) {
                     System.out.print("\n \tExiting from admin panel. ");
                     break;
                   } else {
@@ -151,7 +176,7 @@ class Product {
     try {
 
       Class.forName("com.mysql.jdbc.Driver");
-      System.out.println("\n\tConnecting to database...");
+//      System.out.println("\n\tConnecting to database...");
       conn = DriverManager.getConnection(DB_URL, USER, PASS);
       System.out.println("\n\tChecking avalibility of the product...");
       stmt = conn.createStatement();
@@ -169,7 +194,7 @@ class Product {
         return false;
       }
 
-      System.out.println("\n\tChecking successfull");
+//      System.out.println("\n\tChecking successfull");
       rs.close();
       stmt.close();
       conn.close();
@@ -192,21 +217,86 @@ class Product {
     return true;
   }
 
+  void ProductSearch(int passid) { // DISPLAY THE AVALABLE MOVIE LIST 
+	    Connection conn = null;
+	    int c=0;
+	    Statement stmt = null;
+	    try {
+
+	      Class.forName("com.mysql.jdbc.Driver");
+
+//	      System.out.println("\n\tConnecting to database...");
+	      conn = DriverManager.getConnection(DB_URL, USER, PASS);
+//	      System.out.println("\n\tFetching data from database...");
+	      stmt = conn.createStatement();
+	      String sql;
+	      sql = "SELECT * FROM plist WHERE pid=" + passid;
+	      ResultSet rs = stmt.executeQuery(sql);
+	      System.out.println("\n\tInformation about product id "+passid+" is ,");
+	      while (rs.next()) {
+	    	  c=c+1;
+	        int pid = rs.getInt("pid");
+	        String ptype = rs.getString("ptype");
+	        String psize = rs.getString("psize");
+	        String pcolor = rs.getString("pcolor");
+	        int pprice = rs.getInt("pprice");
+	        int pdiscount = rs.getInt("pdiscount");
+	        int pinstock = rs.getInt("pinstock");
+	        System.out.print("ID: " + pid);
+	        System.out.print(", Type: " + ptype);
+	        System.out.print(", Size: " + psize);
+	        System.out.print(", Color: " + pcolor);
+	        System.out.print(", Price: " + pprice);
+	        System.out.print(", Discount: " + pdiscount + "%");
+	        if (pinstock <= 0) {
+	          System.out.print(", PRODUCT OUT OF STOCK TRY LATER \n");
+	        } else {
+	          System.out.print("\n");
+	        }
+	      }
+	      rs.close();
+	      stmt.close();
+	      conn.close();
+//	      System.out.println("\n\tData fetch successfull...");
+	    } catch (SQLException se) {
+	      System.out.println("\n\tSQL ERROR");
+	    } catch (Exception e) {
+	      System.out.println("\n\tERROR OCCERS");
+	    } finally {
+	      try {
+	        if (stmt != null)
+	          stmt.close();
+	      } catch (SQLException se2) {}
+	      try {
+	        if (conn != null)
+	          conn.close();
+	      } catch (SQLException se) {
+	        System.out.println("\n\tSQL ERROR");
+	      }
+	    }
+	    if (c==0) {
+	    	System.out.println("Not Found In our store");
+	    }
+	  }//PRODUCT SEARCH
+  
+  
   void ProductDisplay(int forwhose) { // DISPLAY THE AVALABLE MOVIE LIST 
     Connection conn = null;
     Statement stmt = null;
+    int c=0;
     try {
 
       Class.forName("com.mysql.jdbc.Driver");
 
-      System.out.println("\n\tConnecting to database...");
+//      System.out.println("\n\tConnecting to database...");
       conn = DriverManager.getConnection(DB_URL, USER, PASS);
-      System.out.println("\n\tFetching data from database...");
+//      System.out.println("\n\tFetching data from database...");
       stmt = conn.createStatement();
       String sql;
       sql = "SELECT * FROM plist";
       ResultSet rs = stmt.executeQuery(sql);
       while (rs.next()) {
+    	  c=c+1;
         int pid = rs.getInt("pid");
         String ptype = rs.getString("ptype");
         String psize = rs.getString("psize");
@@ -232,9 +322,9 @@ class Product {
       rs.close();
       stmt.close();
       conn.close();
-      System.out.println("\n\tData fetch successfull...");
+//      System.out.println("\n\tData fetch successfull...");
     } catch (SQLException se) {
-      System.out.println("\n\tSQL ERROR");
+//      System.out.println("\n\tSQL ERROR");
     } catch (Exception e) {
       System.out.println("\n\tERROR OCCERS");
     } finally {
@@ -249,6 +339,9 @@ class Product {
         System.out.println("\n\tSQL ERROR");
       }
     }
+if(c==0) {
+	System.out.println("\nNo data found ask the owner");
+}
   }
 
   void DisplayCustomerListDetails(Integer[] myProductList, Integer[] myNoOfProducts) { // DISPLAY THE CUSTOMER MOVIE LIST THAT THEY CHOOSE
@@ -324,9 +417,9 @@ class Product {
       Statement stmt = null;
       try {
         Class.forName("com.mysql.jdbc.Driver");
-        System.out.println("\n\tConnecting to database...");
+//        System.out.println("\n\tConnecting to database...");
         conn = DriverManager.getConnection(DB_URL, USER, PASS);
-        System.out.println("\n\tFetching data from database....");
+//        System.out.println("\n\tFetching data from database....");
         stmt = conn.createStatement();
         String sql;
         sql = "SELECT * FROM plist WHERE pid =" + myProductList[i];
@@ -409,7 +502,7 @@ class Customer { //CUSTOMER CLASS
       myList1.add(noOfProduct);
       myNoOfProducts = myList1.toArray(myNoOfProducts);
     } else {
-      System.out.println("\n\tProduct ID " + myProductId + " is avalable in our store OR It is stock out.");
+      System.out.println("\n\tProduct ID " + myProductId + " is not avalable in our store OR It is stock out.");
     }
   }
 

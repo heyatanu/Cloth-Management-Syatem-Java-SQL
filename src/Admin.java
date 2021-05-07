@@ -184,6 +184,8 @@ public class Admin {
   public static boolean AdminCheck(String username, String UPassword) {
     Connection conn = null;
     Statement stmt = null;
+    username=username.trim();
+    UPassword=UPassword.trim();
     try {
 
       Class.forName("com.mysql.jdbc.Driver");
