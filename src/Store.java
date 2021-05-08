@@ -22,6 +22,7 @@ class Shop {
     System.out.println("\n\tWELCOME TO ABC STORE");
     //DISPLAY MOVIE LIST
     while (true) {
+    	System.out.print("\n");
       Product1.ProductDisplay(0);
       System.out.print("\n\t1.Add product in list\n\t2.Remove product from list\n\t3.Display your list\n\t0.Exit");
       try {
@@ -108,7 +109,13 @@ class Shop {
                     try {
                       System.out.print("\nEnter the id of product you want to delete - ");
                       int checksts = in .nextInt();
-                      Admin.DeleteProduct(checksts);
+                      if(Product1.CheckAvalability(checksts, 1)) {
+                    	  Admin.DeleteProduct(checksts);
+                      }
+                      else {
+                    	  System.out.print("\nNot found the product");  
+                      }
+                     
                     } catch (Exception e) {
                       System.out.println("\n\tINVALID...");
                       break;
@@ -178,7 +185,7 @@ class Product {
       Class.forName("com.mysql.jdbc.Driver");
 //      System.out.println("\n\tConnecting to database...");
       conn = DriverManager.getConnection(DB_URL, USER, PASS);
-      System.out.println("\n\tChecking avalibility of the product...");
+      //System.out.println("\n\tChecking avalibility of the product...");
       stmt = conn.createStatement();
       String sql;
       sql = "SELECT * FROM plist WHERE pid=" + passid;
@@ -311,7 +318,7 @@ class Product {
         System.out.print(", Price: " + pprice);
         System.out.print(", Discount: " + pdiscount + "%");
         if (forwhose == 1) {
-          System.out.print(", Sttock: " + pinstock);
+          System.out.print(", Stock: " + pinstock);
         }
         if (pinstock <= 0) {
           System.out.print(", PRODUCT OUT OF STOCK TRY LATER \n");
@@ -408,7 +415,7 @@ if(c==0) {
   }
 
   void CustomerCheckOut(Integer[] myProductList, Integer[] myNoOfProducts) { //CHECKOUT THE CUSTOMER GENARATE BILL 
-    int finalprice = 0;
+    double finalprice = 0;
     for (int i = 0; i < myProductList.length; i++) {
       if (myNoOfProducts[i] == -9999) {
         continue;
@@ -439,7 +446,7 @@ if(c==0) {
           System.out.println("\n\tYour Final price is " + finalprice);
           //DISCOUNT
           while(true) {
-        	  try{System.out.println("Do you have any Discount code(1/0) :- ");
+        	  try{System.out.print("Do you have any Discount code(1/0) :- ");
         	  int disch=in.nextInt();
         	  if(disch==1) {
         		  System.out.print("Enter code here :- ");
@@ -493,6 +500,20 @@ class Customer { //CUSTOMER CLASS
 
   void AddToMyList(int myProductId, int noOfProduct, Product product) { // ADD THE MOVIE IN CUSTOMER LIST
     if (product.CheckAvalability(myProductId, noOfProduct)) {
+        boolean found = false;
+        int ind=0;
+    	for (int n = 0 ;n<myProductList.length;n++) {
+    	      if (myProductList[n] == myProductId) {
+    	        found = true;
+    	        ind=n;
+    	        break;
+    	      }
+    	    }
+    	if (found) {
+    		System.out.println("\n\tProduct Id " + myProductId + " added to your list. With quantity " + noOfProduct + ".");
+    		myNoOfProducts[ind]=myNoOfProducts[ind]+noOfProduct;
+    	}
+    	else {
       System.out.println("\n\tProduct Id " + myProductId + " added to your list. With quantity " + noOfProduct + ".");
       ArrayList < Integer > myList = new ArrayList < Integer > (Arrays.asList(myProductList));
       myList.add(myProductId);
@@ -501,6 +522,7 @@ class Customer { //CUSTOMER CLASS
       ArrayList < Integer > myList1 = new ArrayList < Integer > (Arrays.asList(myNoOfProducts));
       myList1.add(noOfProduct);
       myNoOfProducts = myList1.toArray(myNoOfProducts);
+    }
     } else {
       System.out.println("\n\tProduct ID " + myProductId + " is not avalable in our store OR It is stock out.");
     }
